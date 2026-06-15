@@ -1,0 +1,50 @@
+/* ============================================================
+   AMBIENTICA — DESIGN TOKENS & THEME DEFINITIONS
+   21 themes total. "theme-midnight" existed in the original CSS
+   but was never exposed in the theme picker — it's now wired up
+   in index.html under the Vibrant group.
+   ============================================================ */
+
+:root {
+    --font-main: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    --radius-lg: 24px;
+    --radius-md: 16px;
+    --radius-sm: 8px;
+
+    --anim-fast: 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --anim-smooth: 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+    --anim-bounce: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
+    --shadow-md: 0 8px 24px rgba(0,0,0,0.12);
+    --shadow-lg: 0 15px 40px rgba(0,0,0,0.2);
+    --glass: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+/* Dark bases */
+html.theme-dark      { --bg: #0b0c10; --panel: #1a1c23; --surface: #23262e; --text: #e6edf3; --muted: #8b949e; --accent: #66fcf1; --accent-rgb: 102, 252, 241; }
+html.theme-slate     { --bg: #212529; --panel: #2b3035; --surface: #343a40; --text: #f8f9fa; --muted: #adb5bd; --accent: #ced4da; --accent-rgb: 206, 212, 218; }
+html.theme-neon      { --bg: #050505; --panel: #111; --surface: #1a1a1a; --text: #fff; --muted: #666; --accent: #d600ff; --accent-rgb: 214, 0, 255; }
+html.theme-ocean     { --bg: #0f172a; --panel: #1e293b; --surface: #334155; --text: #f1f5f9; --muted: #94a3b8; --accent: #38bdf8; --accent-rgb: 56, 189, 248; }
+html.theme-forest    { --bg: #051c12; --panel: #0b291d; --surface: #143828; --text: #e8f5e9; --muted: #81c784; --accent: #00e676; --accent-rgb: 0, 230, 118; }
+html.theme-sunset    { --bg: #2d1b2e; --panel: #452641; --surface: #593250; --text: #ffd1dc; --muted: #cfaecf; --accent: #ff9e64; --accent-rgb: 255, 158, 100; }
+html.theme-royal     { --bg: #181026; --panel: #2d1b4e; --surface: #3f2766; --text: #f3e8ff; --muted: #d8b4fe; --accent: #d8b4fe; --accent-rgb: 216, 180, 254; }
+html.theme-cherry    { --bg: #2b0a0a; --panel: #3d1010; --surface: #521616; --text: #ffe3e3; --muted: #ffb3b3; --accent: #ff5252; --accent-rgb: 255, 82, 82; }
+html.theme-dracula   { --bg: #282a36; --panel: #343746; --surface: #44475a; --text: #f8f8f2; --muted: #6272a4; --accent: #bd93f9; --accent-rgb: 189, 147, 249; }
+html.theme-monokai   { --bg: #272822; --panel: #3e3d32; --surface: #49483e; --text: #f8f8f2; --muted: #75715e; --accent: #fd971f; --accent-rgb: 253, 151, 31; }
+html.theme-nord      { --bg: #2e3440; --panel: #3b4252; --surface: #434c5e; --text: #eceff4; --muted: #d8dee9; --accent: #88c0d0; --accent-rgb: 136, 192, 208; }
+html.theme-solarized { --bg: #002b36; --panel: #073642; --surface: #586e75; --text: #fdf6e3; --muted: #93a1a1; --accent: #b58900; --accent-rgb: 181, 137, 0; }
+html.theme-hacker    { --bg: #000000; --panel: #0a0a0a; --surface: #111; --text: #00ff00; --muted: #008f11; --accent: #00ff00; --accent-rgb: 0, 255, 0; font-family: 'Courier New', monospace; }
+html.theme-midnight  { --bg: #000428; --panel: #004e92; --surface: #005bea; --text: #fff; --muted: #ccc; --accent: #00c6fb; --accent-rgb: 0, 198, 251; }
+
+/* Light bases */
+html.theme-light    { --bg: #f0f2f5; --panel: #ffffff; --surface: #f8f9fa; --text: #1c1e21; --muted: #65676b; --accent: #1877f2; --accent-rgb: 24, 119, 242; --glass: rgba(0,0,0,0.02); --glass-border: rgba(0,0,0,0.08); }
+html.theme-coffee   { --bg: #e6e0d4; --panel: #d6cbb8; --surface: #c4b6a1; --text: #4a3b2a; --muted: #756048; --accent: #8d6e63; --accent-rgb: 141, 110, 99; --glass: rgba(74, 59, 42, 0.05); --glass-border: rgba(74, 59, 42, 0.1); }
+html.theme-matcha   { --bg: #f1f8e9; --panel: #dcedc8; --surface: #c5e1a5; --text: #33691e; --muted: #689f38; --accent: #558b2f; --accent-rgb: 85, 139, 47; --glass: rgba(51, 105, 30, 0.05); --glass-border: rgba(51, 105, 30, 0.1); }
+html.theme-vapor    { --bg: #fdf2f8; --panel: #fce7f3; --surface: #fbcfe8; --text: #831843; --muted: #be185d; --accent: #db2777; --accent-rgb: 219, 39, 119; --glass: rgba(219, 39, 119, 0.05); --glass-border: rgba(219, 39, 119, 0.1); }
+html.theme-sky      { --bg: #f0f9ff; --panel: #e0f2fe; --surface: #bae6fd; --text: #0c4a6e; --muted: #0284c7; --accent: #0ea5e9; --accent-rgb: 14, 165, 233; --glass: rgba(14, 165, 233, 0.05); --glass-border: rgba(14, 165, 233, 0.1); }
+html.theme-lavender { --bg: #f5f3ff; --panel: #ede9fe; --surface: #ddd6fe; --text: #4c1d95; --muted: #7c3aed; --accent: #8b5cf6; --accent-rgb: 139, 92, 246; --glass: rgba(139, 92, 246, 0.05); --glass-border: rgba(139, 92, 246, 0.1); }
+html.theme-gold     { --bg: #1c1917; --panel: #292524; --surface: #44403c; --text: #fef3c7; --muted: #d6d3d1; --accent: #fbbf24; --accent-rgb: 251, 191, 36; }
