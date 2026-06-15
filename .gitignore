@@ -1,0 +1,9 @@
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
+*.log
+
+# Local servers / tooling (none required, but ignore if used)
+node_modules/
+.cache/
