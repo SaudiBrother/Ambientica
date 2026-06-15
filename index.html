@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="id" class="theme-dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ambientica — studio efek audio (FX) berbasis browser dengan EQ, compressor, distortion, chorus, auto-pan, delay dan reverb. Bisa dipasang sebagai aplikasi dan berjalan sepenuhnya offline.">
+
+    <title>Ambientica — Audio FX Studio</title>
+
+    <!-- PWA -->
+    <meta name="theme-color" content="#0b0c10">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Ambientica">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+
+    <!-- Audio-engine gate / busy overlay -->
+    <div id="overlay-layer" class="overlay-layer">
+        <div class="overlay-content">
+            <div class="overlay-icon"><i class="fa-solid fa-wave-square"></i></div>
+            <div class="loader-ring"></div>
+            <h2 id="overlay-text">Ambientica</h2>
+            <p id="overlay-sub">Ketuk atau klik di mana saja untuk menyalakan mesin audio</p>
+        </div>
+    </div>
+
+    <!-- Drag a file anywhere to load it -->
+    <div id="drop-zone-overlay" class="drop-zone-overlay">
+        <div class="drop-zone-content">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <p>Seret berkas audio ke sini untuk memuatnya</p>
+        </div>
+    </div>
+
+    <div class="app-layout">
+        <aside class="sidebar glass-panel">
+            <div class="brand">
+                <div class="brand-info">
+                    <div class="brand-icon-wrapper"><i class="fa-solid fa-wave-square"></i></div>
+                    <div class="brand-text">
+                        <h1>Ambientica</h1>
+                        <small>Audio FX Studio</small>
+                    </div>
+                </div>
+                <div class="brand-actions">
+                    <button id="install-btn" class="brand-action install-btn" hidden aria-label="Instal Aplikasi" title="Instal Aplikasi">
+                        <i class="fa-solid fa-download"></i>
+                    </button>
+                    <button id="help-btn" class="brand-action help-btn" aria-label="Bantuan" title="Bantuan">
+                        <i class="fa-solid fa-circle-question"></i>
+                        <span>Bantuan</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="sidebar-scroll">
+                <div class="control-group">
+                    <label class="label-text" for="theme-selector"><i class="fa-solid fa-palette"></i> Tema</label>
+                    <div class="select-wrapper">
+                        <select id="theme-selector" class="select-input">
+                            <optgroup label="Standard">
+                                <option value="theme-dark">Dark</option>
+                                <option value="theme-light">Light</option>
+                                <option value="theme-slate">Slate</option>
+                            </optgroup>
+                            <optgroup label="Vibrant">
+                                <option value="theme-neon">Neon</option>
+                                <option value="theme-sunset">Sunset</option>
+                                <option value="theme-ocean">Ocean</option>
+                                <option value="theme-forest">Forest</option>
+                                <option value="theme-cherry">Cherry</option>
+                                <option value="theme-royal">Royal</option>
+                                <option value="theme-gold">Gold</option>
+                                <option value="theme-midnight">Midnight</option>
+                            </optgroup>
+                            <optgroup label="Soft &amp; Pastel">
+                                <option value="theme-coffee">Coffee</option>
+                                <option value="theme-matcha">Matcha</option>
+                                <option value="theme-vapor">Vapor</option>
+                                <option value="theme-sky">Sky</option>
+                                <option value="theme-lavender">Lavender</option>
+                            </optgroup>
+                            <optgroup label="Coding Classics">
+                                <option value="theme-dracula">Dracula</option>
+                                <option value="theme-monokai">Monokai</option>
+                                <option value="theme-nord">Nord</option>
+                                <option value="theme-solarized">Solarized</option>
+                                <option value="theme-hacker">Hacker</option>
+                            </optgroup>
+                        </select>
+                        <i class="fa-solid fa-chevron-down select-arrow"></i>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="label-text" for="audio-preset-selector"><i class="fa-solid fa-wand-magic-sparkles"></i> Audio Presets</label>
+                    <div class="select-wrapper">
+                        <select id="audio-preset-selector" class="select-input">
+                            <option value="cave">Cave</option>
+                            <option value="dream">Dream</option>
+                            <option value="hall">Hall</option>
+                            <option value="lofi">Lo-Fi</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down select-arrow"></i>
+                    </div>
+                </div>
+
+                <div class="control-group actions">
+                    <div class="btn-row">
+                        <button id="save-preset-btn" class="btn btn-outline hover-lift">
+                            <i class="fa-solid fa-floppy-disk"></i> Simpan
+                        </button>
+                        <button id="load-preset-btn" class="btn btn-outline hover-lift">
+                            <i class="fa-solid fa-folder-open"></i> Muat
+                        </button>
+                        <input type="file" id="preset-input" accept="application/json" hidden>
+                    </div>
+                </div>
+
+                <div class="master-section glass-inset">
+                    <div class="master-header">
+                        <span>MASTER OUT</span>
+                        <span id="master-db-readout" class="mono-text">-&infin; dB</span>
+                    </div>
+                    <div class="meter-container">
+                        <div class="meter-bar" id="master-meter-bar"></div>
+                    </div>
+                    <div class="master-volume-row">
+                        <button id="mute-btn" aria-label="Bisukan / aktifkan suara"><i class="fa-solid fa-volume-high"></i></button>
+                        <div id="master-volume-slot"></div>
+                        <span id="master-volume-readout" class="mono-text">0.0 dB</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="workspace">
+            <section class="visualizer-area fade-in-up">
+                <div class="card playback-card glass-panel">
+                    <div class="playback-header">
+                        <div class="playback-info">
+                            <div id="file-name">Tidak Ada Berkas Dimuat</div>
+                            <div class="time-wrapper mono-text">
+                                <span id="current-time">0:00</span>
+                                <span class="divider">/</span>
+                                <span id="total-duration">0:00</span>
+                            </div>
+                        </div>
+                        <div class="viz-controls">
+                            <div class="select-wrapper mini">
+                                <select id="viz-type-selector" class="mini-select" aria-label="Mode visualizer">
+                                    <option value="bars">Digital Bars</option>
+                                    <option value="wave">Waveform</option>
+                                    <option value="circular">Circular</option>
+                                    <option value="mirror">Mirror</option>
+                                    <option value="nebula">Nebula</option>
+                                    <option value="spectrum">Spectrum Analyzer</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="playback-actions">
+                        <button id="upload-trigger-btn" class="btn btn-primary hover-lift btn-compact">
+                            <i class="fa-solid fa-upload"></i> Muat Audio
+                        </button>
+                        <input type="file" id="file-input" accept="audio/*" hidden>
+
+                        <button id="download-btn" class="btn btn-outline hover-lift btn-compact" disabled>
+                            <i class="fa-solid fa-file-export"></i> Ekspor WAV
+                        </button>
+                    </div>
+
+                    <div class="waveform-wrapper glass-inset" id="waveform-container">
+                        <canvas id="main-visualizer"></canvas>
+                        <div id="playhead"></div>
+                    </div>
+
+                    <div class="transport-controls">
+                        <button id="play-pause-btn" class="btn-play hover-scale" disabled aria-label="Putar / jeda">
+                            <i class="fa-solid fa-play"></i>
+                        </button>
+                        <span class="transport-hint mono-text">
+                            <kbd>Space</kbd> Putar &nbsp; <kbd>&larr;&rarr;</kbd> Geser &nbsp; <kbd>M</kbd> Senyap &nbsp; <kbd>C</kbd> Banding
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="rack-area fade-in-up delay-1">
+                <div class="rack-header">
+                    <h3>Rantai Efek</h3>
+                    <div class="rack-header-actions">
+                        <button id="compare-btn" class="btn-link" aria-pressed="false">
+                            <i class="fa-solid fa-code-compare"></i> Bandingkan
+                        </button>
+                        <button id="global-reset-btn" class="btn-link"><i class="fa-solid fa-rotate-left"></i> Reset Semua</button>
+                    </div>
+                </div>
+                <div id="fx-chain-container" class="fx-grid"></div>
+                <div id="empty-chain-msg" class="glass-panel">
+                    <i class="fa-solid fa-circle-notch fa-spin-pulse"></i>
+                    <span>Tidak ada efek dalam rantai</span>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <!-- Custom confirm dialog (replaces window.confirm) -->
+    <div id="confirm-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+        <div class="modal-box glass-panel">
+            <h3 id="confirm-title">Apakah Anda yakin?</h3>
+            <p id="confirm-message"></p>
+            <div class="modal-actions">
+                <button id="confirm-cancel" class="btn btn-outline">Batal</button>
+                <button id="confirm-ok" class="btn btn-primary">Konfirmasi</button>
+            </div>
+        </div>
+    </div>
+
+    <template id="fx-module-template">
+        <div class="card fx-card glass-panel" draggable="true">
+            <div class="fx-header">
+                <i class="module-icon"></i>
+                <span class="fx-name"></span>
+                <div class="fx-tools">
+                    <label class="toggle-switch">
+                        <input type="checkbox" class="bypass-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                    <button class="drag-handle" aria-label="Geser untuk mengubah urutan"><i class="fa-solid fa-grip-vertical"></i></button>
+                </div>
+            </div>
+            <div class="fx-body"></div>
+        </div>
+    </template>
+
+    <!-- Help / guide page -->
+    <div id="help-page" class="help-page" role="dialog" aria-modal="true" aria-labelledby="help-page-title">
+        <div class="help-page-inner glass-panel">
+            <header class="help-page-header">
+                <div class="help-page-heading">
+                    <i class="fa-solid fa-circle-question"></i>
+                    <div>
+                        <h2 id="help-page-title">Panduan Ambientica</h2>
+                        <p class="help-page-subtitle">Penjelasan setiap fitur, untuk apa, dan cara menggunakannya</p>
+                    </div>
+                </div>
+                <button id="help-close-btn" class="help-close-btn" aria-label="Tutup bantuan">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </header>
+            <div class="help-page-content" id="help-content"></div>
+        </div>
+    </div>
+
+    <script src="js/effects-config.js" defer></script>
+    <script src="js/presets-config.js" defer></script>
+    <script src="js/help-content.js" defer></script>
+    <script src="js/slider.js" defer></script>
+    <script src="js/visualizer.js" defer></script>
+    <script src="js/app.js" defer></script>
+</body>
+</html>
