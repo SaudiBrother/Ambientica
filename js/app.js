@@ -618,29 +618,8 @@ class DAWApp {
             }
         });
 
-        // --- FX chain drag & drop reordering ---
-        this.dom.fxChainContainer.addEventListener('dragstart', e => {
-            const card = e.target.closest('.fx-card');
-            if (!card) return;
-            card.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/plain', card.dataset.fxId || '');
-        });
-
-        this.dom.fxChainContainer.addEventListener('dragend', e => {
-            const card = e.target.closest('.fx-card');
-            if (card) card.classList.remove('dragging');
-            this.updateChainOrder();
-        });
-
-        this.dom.fxChainContainer.addEventListener('dragover', e => {
-            e.preventDefault();
-            const dragging = this.dom.fxChainContainer.querySelector('.dragging');
-            if (!dragging) return;
-            const afterElement = this.getDragAfterElement(this.dom.fxChainContainer, e.clientX, e.clientY);
-            if (afterElement == null) this.dom.fxChainContainer.appendChild(dragging);
-            else this.dom.fxChainContainer.insertBefore(dragging, afterElement);
-        });
+        // --- FX chain drag & drop reordering (Pointer Events, see initFxChainReorder) ---
+        this.initFxChainReorder();
 
         // --- Scrubbing ---
         this.dom.waveformContainer.addEventListener('click', e => {
@@ -1310,6 +1289,60 @@ class DAWApp {
     }
 
     /* ---------------------------------------------------------- DRAG REORDER */
+
+    /**
+     * Reordering used to rely on native HTML5 Drag & Drop (dragstart/dragover/
+     * dragend), which is a mouse-only API: most mobile browsers never fire a
+     * clean dragend for a touch-driven drag, so the card got stuck with the
+     * `.dragging` class (permanently faded via the opacity:0.4 rule) while the
+     * browser kept treating the gesture as "still dragging" and stopped
+     * delivering touch input to the rest of the page — exactly the frozen-UI
+     * symptom. Pointer Events (the same approach used in slider.js) fire
+     * consistently for mouse, touch and pen and let us explicitly capture and
+     * release the pointer, so the drag always has a guaranteed end state.
+     */
+    initFxChainReorder() {
+        const container = this.dom.fxChainContainer;
+        let card = null;
+        let pointerId = null;
+
+        const onPointerMove = (e) => {
+            if (!card || e.pointerId !== pointerId) return;
+            e.preventDefault();
+            const afterElement = this.getDragAfterElement(container, e.clientX, e.clientY);
+            if (afterElement == null) container.appendChild(card);
+            else if (afterElement !== card) container.insertBefore(card, afterElement);
+        };
+
+        const endDrag = (e) => {
+            if (!card || (pointerId !== null && e.pointerId !== pointerId)) return;
+            if (card.hasPointerCapture && card.hasPointerCapture(pointerId)) {
+                card.releasePointerCapture(pointerId);
+            }
+            card.classList.remove('dragging');
+            container.removeEventListener('pointermove', onPointerMove);
+            container.removeEventListener('pointerup', endDrag);
+            container.removeEventListener('pointercancel', endDrag);
+            card = null;
+            pointerId = null;
+            this.updateChainOrder();
+        };
+
+        container.addEventListener('pointerdown', (e) => {
+            const handle = e.target.closest('.drag-handle');
+            if (!handle) return;
+            const target = handle.closest('.fx-card');
+            if (!target) return;
+            e.preventDefault();
+            card = target;
+            pointerId = e.pointerId;
+            card.classList.add('dragging');
+            card.setPointerCapture(pointerId);
+            container.addEventListener('pointermove', onPointerMove);
+            container.addEventListener('pointerup', endDrag);
+            container.addEventListener('pointercancel', endDrag);
+        });
+    }
 
     updateChainOrder() {
         const newOrder = [...this.dom.fxChainContainer.querySelectorAll('.fx-card')].map(el => el.dataset.fxId);
